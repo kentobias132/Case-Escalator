@@ -1,0 +1,389 @@
+{
+  "name": "Case builder",
+  "nodes": [
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Transcript: {{ JSON.stringify($json.body.transcript) }} | Agent notes: {{ $json.body.agent_notes }}"
+            },
+            {
+              "role": "system",
+              "content": "You are a senior technical support engineer drafting an escalation case for a Tier-2 queue. Read the chat transcript and agent notes. Output STRICT JSON only, with exactly these keys:\n\"issue_title\" (one line, max 12 words),\n\"root_cause_hypothesis\" (most likely technical cause),\n\"queue\" (choose one: \"Tech-Disputes\", \"Hardware\", \"Billing\", \"App-Bug\", \"Ops\"),\n\"priority\" (choose one: \"P1\", \"P2\", \"P3\"),\n\"key_facts\" (object: transaction_id, terminal_id, error_code, time_of_incident — use \"not provided\" if missing),\n\"steps_already_taken\" (array of troubleshooting steps the Tier-1 agent already performed),\n\"customer_sentiment\" (choose one: \"Calm\", \"Frustrated\", \"Furious\"),\n\"case_description\" (4-6 sentence professional summary for the Tier-2 engineer, including what NOT to re-ask the customer)."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        496,
+        -416
+      ],
+      "id": "4c7b7438-dd27-4599-bade-22c2a479048a",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9b3ac3de-5562-4a21-94fa-b9e5d7a5e56e",
+              "name": "Case",
+              "value": "={{ JSON.parse($json.output[0].content[0].text) }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        848,
+        -416
+      ],
+      "id": "dcd26197-564a-4598-a75d-784213dd0ea0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ebe1b15f-a381-407d-b17a-9903603795b0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        272,
+        -416
+      ],
+      "id": "805c2bee-5d48-4ba4-8d44-4f118869a334",
+      "name": "Webhook",
+      "webhookId": "ebe1b15f-a381-407d-b17a-9903603795b0"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1fqG32pQ59pVzWe17ojZdA6AnpQ1YERv6YTjSK5CfhIY",
+          "mode": "list",
+          "cachedResultName": "Smart Triage",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fqG32pQ59pVzWe17ojZdA6AnpQ1YERv6YTjSK5CfhIY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 824562946,
+          "mode": "list",
+          "cachedResultName": "Escalation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fqG32pQ59pVzWe17ojZdA6AnpQ1YERv6YTjSK5CfhIY/edit#gid=824562946"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Issue Title": "={{ $('Edit Fields').item.json.Case.issue_title }}",
+            "Case Description": "={{ $('Edit Fields').item.json.Case.case_description }}",
+            "Priority": "={{ $('Edit Fields').item.json.Case.priority }}",
+            "Queue ": "={{ $('Edit Fields').item.json.Case.queue }}",
+            "Sentiment ": "={{ $('Edit Fields').item.json.Case.customer_sentiment }}",
+            "Timestamp ": "={{ $now }}",
+            "Ticket ID": "={{ $('Webhook').item.json.body.ticket_id }}",
+            "Customer": "={{ $('Webhook').item.json.body.customer_name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp ",
+              "displayName": "Timestamp ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer",
+              "displayName": "Customer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Issue Title",
+              "displayName": "Issue Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Queue ",
+              "displayName": "Queue ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment ",
+              "displayName": "Sentiment ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Case Description",
+              "displayName": "Case Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1520,
+        -512
+      ],
+      "id": "94b0a437-3c02-448f-bdd8-ba8dd5e7c5f9",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "HWMQonhL382XonoJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ {'Tech-Disputes':'tech-disputes','Hardware':'hardware','Billing':'billing','App-Bug':'app-bug','Ops':'ops'}[$('Edit Fields').item.json.Case.queue] || 'support-general' }}",
+          "mode": "name"
+        },
+        "text": "={{ $('Edit Fields').item.json.Case.priority === \"P1\" ? \"🚨 P1 ESCALATION\" : \"📋 New case\" }} — {{ $('Edit Fields').item.json.Case.queue }}\n*Issue:* {{ $('Edit Fields').item.json.Case.issue_title }}\n*Facts:* Tx `{{ $('Edit Fields').item.json.Case.key_facts.transaction_id }}` | Terminal `{{ $('Edit Fields').item.json.Case.key_facts.terminal_id }}` | Err `{{ $('Edit Fields').item.json.Case.key_facts.error_code }}`\n*Already tried:* {{ $('Edit Fields').item.json.Case.steps_already_taken.join(\", \") }}\n*Sentiment:* {{ $('Edit Fields').item.json.Case.customer_sentiment }}\n\n{{ $('Edit Fields').item.json.Case.case_description }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        1520,
+        -320
+      ],
+      "id": "2ec1d4a6-8ea7-4914-a9f9-f8a455127379",
+      "name": "Send a message1",
+      "webhookId": "1f95ad81-e4f1-465d-a0b4-9e74246c18ac",
+      "credentials": {
+        "slackApi": {
+          "id": "cS4y4aivz88s4tND",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1fqG32pQ59pVzWe17ojZdA6AnpQ1YERv6YTjSK5CfhIY",
+          "mode": "list",
+          "cachedResultName": "Smart Triage",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fqG32pQ59pVzWe17ojZdA6AnpQ1YERv6YTjSK5CfhIY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 824562946,
+          "mode": "list",
+          "cachedResultName": "Escalation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fqG32pQ59pVzWe17ojZdA6AnpQ1YERv6YTjSK5CfhIY/edit#gid=824562946"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Ticket ID",
+              "lookupValue": "={{ $('Webhook').item.json.body.ticket_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1072,
+        -416
+      ],
+      "id": "d9ca7276-972c-4d61-8312-bf2e6116efd0",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "HWMQonhL382XonoJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "881f35ec-e191-44da-ab8c-8012b2c1aef1",
+              "leftValue": "={{ $('Webhook').item.json.body.ticket_id }}",
+              "rightValue": "={{ $json['Ticket ID'] }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1296,
+        -416
+      ],
+      "id": "c2775e29-0a10-4e2b-b757-3c9fb0d25f77",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7df75169-32c7-4d82-ab48-9d071d2c2565",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "58f5ce9a555f14f457f55346adcd27529c40080364eaadb8162484e971dae3c2"
+  },
+  "nodeGroups": [],
+  "id": "2g10CMtKIeou8NjF",
+  "tags": []
+}
