@@ -1,8 +1,8 @@
-# 🤖 Escalator — AI Escalation Routing for Support Teams
+#  Escalator — AI Escalation Routing for Support Teams
 
 > An n8n-powered AI agent that reads support conversations, writes production-grade escalation cases, and routes them to the right team's Slack channel — so customers never have to repeat themselves.
 
-Built by **Tobi Kehinde** — 7 years in customer support & success (high-volume call centers, remote U.S. healthcare operations, QA supervision), now bridging frontline ops experience with AI automation.
+Built by **Tobi Kehinde**,  7 years in customer support & success (high-volume call centers, remote U.S. healthcare operations, QA supervision), now bridging frontline ops experience with AI automation.
 
 ---
 
